@@ -58,13 +58,16 @@ class PostProcessing:
                 instant = (chunk['instant'] - self.first_instant)/1000.
                 print 'sox %s %s pad %s' % (f, tmp_f, instant)
                 chunks.append(tmp_f)
-        print 'sox --combine mix-power %s final_%s.wav' % (' '.join(chunks), speaker)
-        for chunk in [d for d in data if d['ssrc'] == speaker]:
-            f = chunk['filename']
-            if os.path.getsize(f) >= 2048:
-                tmp_f = self.tmp_filename(f)
-                print 'rm %s' % (tmp_f)
-                chunks.append(tmp_f)
+        if len(chunks) == 1:
+            print 'mv %s final_%s.wav' % (chunks[0], speaker)
+        else:
+            print 'sox --combine mix-power %s final_%s.wav' % (' '.join(chunks), speaker)
+            for chunk in [d for d in data if d['ssrc'] == speaker]:
+                f = chunk['filename']
+                if os.path.getsize(f) >= 2048:
+                    tmp_f = self.tmp_filename(f)
+                    print 'rm %s' % (tmp_f)
+                    chunks.append(tmp_f)
         print
 
     def run(self):
